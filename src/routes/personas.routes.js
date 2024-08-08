@@ -1,66 +1,77 @@
-import {Router} from 'express'
-import pool from '../database.js'
+import {Router} from 'express';
+import pool from '../database.js';
 
 const router = Router();
-router.get('/add', async(req,res)=>{
-    const [roles]=await pool.query('SELECT * FROM tipo_persona');
-    res.render('personas/add', {tipos_persona:roles});
+router.get('/add', async (req, res) => {
+    const [roles] = await pool.query('SELECT * FROM tipo_persona');
+    res.render('personas/add', {tipos_persona: roles});
 });
-router.post('/add', async(req,res)=>{
-    try{
-        const{name, lastname, age, Tipo_Persona} = req.body;
+router.post('/add', async (req, res) => {
+    try {
+        const {name, lastname, age, Tipo_Persona} = req.body;
         const newPersona = {
-            name, lastname, age, Tipo_Persona
-        }
+            name,
+            lastname,
+            age,
+            Tipo_Persona,
+        };
         await pool.query('INSERT INTO personas SET ?', [newPersona]);
         res.redirect('/list');
-    }
-    catch(err){
-        res.status(500).json({message:err.message});
+    } catch (err) {
+        res.status(500).json({message: err.message});
     }
 });
-router.get('/list', async(req, res)=>{
-    try{
-        const[result] = await pool.query('SELECT * FROM personas');
+router.get('/list', async (req, res) => {
+    try {
+        const [result] = await pool.query(
+            'SELECT id, name, lastname, age, rol FROM personas join tipo_persona on Tipo_Persona = id_TP',
+        );
         res.render('personas/list', {personas: result});
-    }
-    catch(err){
-        res.status(500).json({message:err.message});
+    } catch (err) {
+        res.status(500).json({message: err.message});
     }
 });
-router.get('/edit/:id', async(req, res)=>{
-    try{
+router.get('/edit/:id', async (req, res) => {
+    try {
         const {id} = req.params;
-        const [roles]=await pool.query('SELECT * FROM tipo_persona');
-        const [persona] = await pool.query('SELECT * FROM personas WHERE id = ?', [id]);
+        const [roles] = await pool.query(
+            'SELECT id, name, lastname, age, rol FROM personas join tipo_persona on Tipo_Persona = id_TP',
+        );
+        const [persona] = await pool.query(
+            'SELECT * FROM personas WHERE id = ?',
+            [id],
+        );
         const personaEdit = persona[0];
-        res.render('personas/edit',{persona: personaEdit, tipos_persona:roles});
+        res.render('personas/edit', {
+            persona: personaEdit,
+            tipos_persona: roles,
+        });
+    } catch (err) {
+        res.status(500).json({message: err.message});
     }
-    catch(err){
-        res.status(500).json({message:err.message});
-    }
-})
-router.post('/edit/:id', async(req,res)=>{
-    try{
+});
+router.post('/edit/:id', async (req, res) => {
+    try {
         const {name, lastname, age, Tipo_Persona} = req.body;
         const {id} = req.params;
         const editPersona = {name, lastname, age, Tipo_Persona};
-        await pool.query('UPDATE personas SET ? WHERE id = ?', [editPersona, id]);
+        await pool.query('UPDATE personas SET ? WHERE id = ?', [
+            editPersona,
+            id,
+        ]);
         res.redirect('/list');
+    } catch (err) {
+        res.status(500).json({message: err.message});
     }
-    catch(err){
-        res.status(500).json({message:err.message});
-    }
-})
+});
 
-router.get('/delete/:id', async(req, res)=>{
-    try{
+router.get('/delete/:id', async (req, res) => {
+    try {
         const {id} = req.params;
-        await pool.query('DELETE FROM personas WHERE id = ?',[id]);
+        await pool.query('DELETE FROM personas WHERE id = ?', [id]);
         res.redirect('/list');
-    }
-    catch(err){
-        res.status(500).json({message:err.message});
+    } catch (err) {
+        res.status(500).json({message: err.message});
     }
 });
 export default router;

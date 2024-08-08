@@ -23,9 +23,9 @@
                             <label for="Tipo_Persona" class="input-group-text">Tipo de persona</label>
                             <select class="form-select" name="Tipo_Persona" aria-label="Default select example" required>
                                 <option selected>{{persona.Tipo_Persona}}</option>
-                                {{#if tipos_persona}}
-                                    {{#each tipos_persona}}
-                                    <option value="{{Nombre_rol}}" >{{Nombre_rol}}</option>
+                                {{#if tipo_persona}}
+                                    {{#each tipo_persona}}
+                                    <option value="{{id_TP}}" >{{rol}}</option>
                                     {{/each}}
                                 {{else}}
                                 <option >No existen roles en la tabla...</option>
