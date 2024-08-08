@@ -34,17 +34,15 @@ router.get('/list', async (req, res) => {
 router.get('/edit/:id', async (req, res) => {
     try {
         const {id} = req.params;
-        const [roles] = await pool.query(
-            'SELECT id, name, lastname, age, rol FROM personas join tipo_persona on Tipo_Persona = id_TP',
-        );
+        const [roles] = await pool.query('SELECT * FROM tipo_persona');
         const [persona] = await pool.query(
-            'SELECT * FROM personas WHERE id = ?',
+            'SELECT id, name, lastname, age, tipo_persona.rol as Rol FROM personas JOIN tipo_persona on personas.Tipo_Persona = tipo_persona.id_TP WHERE id = ?',
             [id],
         );
         const personaEdit = persona[0];
         res.render('personas/edit', {
             persona: personaEdit,
-            tipos_persona: roles,
+            tipo_persona: roles,
         });
     } catch (err) {
         res.status(500).json({message: err.message});
